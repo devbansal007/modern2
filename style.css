@@ -2,16 +2,16 @@
    TIC TAC TOE - MODERN FUTURISTIC DEVELOPER DESIGN
    ========================================================================== */
 
-/* Import Google Fonts: Plus Jakarta Sans & Space Grotesk */
+/* Typography */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  /* Core Color Palette - Cyber Obsidian & Neon */
+  /* Core Color Palette - Obsidian & Neon */
   --bg-dark: #07090e;
   --bg-surface: rgba(14, 20, 34, 0.75);
-  --bg-surface-elevated: rgba(22, 31, 52, 0.85);
-  --bg-cell: rgba(16, 23, 40, 0.65);
-  --bg-cell-hover: rgba(26, 38, 66, 0.8);
+  --bg-surface-elevated: rgba(22, 31, 52, 0.95);
+  --bg-cell: rgba(16, 23, 40, 0.75);
+  --bg-cell-hover: rgba(26, 38, 66, 0.9);
   
   /* Neon Accents */
   --cyan-neon: #00f0ff;
@@ -26,14 +26,12 @@
 
   --emerald-neon: #10b981;
   --emerald-glow: rgba(16, 185, 129, 0.4);
-  --amber-neon: #f59e0b;
 
   /* Neutrals & Borders */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-accent: rgba(99, 102, 241, 0.25);
 
   /* Geometry & Physics */
   --radius-sm: 8px;
@@ -49,6 +47,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
@@ -59,6 +58,7 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
 }
 
 body {
@@ -71,21 +71,21 @@ body {
   padding: 1.5rem 1rem;
 }
 
-/* ==========================================================================
-   AMBIENT BACKGROUND (Futuristic Grid & Radial Energy Orbs)
-   ========================================================================== */
+/* Ambient Background - Strictly Non-interactive */
 .ambient-background {
   position: fixed;
   inset: 0;
-  pointer-events: none;
+  pointer-events: none !important;
+  user-select: none;
+  -webkit-user-select: none;
   z-index: 0;
   overflow: hidden;
 }
 
-/* Cybernetic Grid Overlay */
 .cyber-grid {
   position: absolute;
   inset: 0;
+  pointer-events: none !important;
   background-image: 
     linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
@@ -94,12 +94,12 @@ body {
   -webkit-mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 85%);
 }
 
-/* Ambient Glowing Orbs */
 .glow-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(90px);
   opacity: 0.35;
+  pointer-events: none !important;
   will-change: transform;
 }
 
@@ -133,12 +133,10 @@ body {
   100% { transform: translate(40px, -60px) scale(0.92); }
 }
 
-/* ==========================================================================
-   APP CONTAINER
-   ========================================================================== */
+/* App Container */
 .app-container {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   width: 100%;
   max-width: 540px;
   margin: 0 auto;
@@ -148,7 +146,6 @@ body {
   gap: 1.25rem;
 }
 
-/* Header Area */
 .game-header {
   text-align: center;
   display: flex;
@@ -177,7 +174,6 @@ body {
   line-height: 1.1;
 }
 
-/* Audio Mute/Unmute Button */
 .audio-toggle-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-subtle);
@@ -189,10 +185,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
   transition: all var(--transition-fast);
 }
 
-.audio-toggle-btn:hover {
+.audio-toggle-btn:hover, .audio-toggle-btn:active {
   background: rgba(255, 255, 255, 0.1);
   color: var(--cyan-neon);
   border-color: var(--cyan-glow);
@@ -206,9 +203,7 @@ body {
   text-transform: uppercase;
 }
 
-/* ==========================================================================
-   MODE SELECTOR (SEGMENTED CONTROL)
-   ========================================================================== */
+/* Mode Selector (Segmented Tab Control) */
 .mode-selector {
   display: flex;
   background: rgba(14, 20, 34, 0.8);
@@ -231,20 +226,17 @@ body {
   background: transparent;
   border: none;
   border-radius: 9999px;
-  padding: 0.5rem 0.85rem;
+  padding: 0.55rem 0.85rem;
   font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-normal);
   white-space: nowrap;
-}
-
-.mode-btn svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 2.2;
 }
 
 .mode-btn:hover {
@@ -258,7 +250,7 @@ body {
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
 }
 
-/* CPU Difficulty Sub-toggle */
+/* CPU Options */
 .cpu-options {
   display: flex;
   align-items: center;
@@ -273,10 +265,13 @@ body {
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
   border-radius: var(--radius-sm);
-  padding: 0.2rem 0.55rem;
+  padding: 0.3rem 0.65rem;
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-fast);
 }
 
@@ -286,9 +281,7 @@ body {
   background: var(--purple-dark);
 }
 
-/* ==========================================================================
-   TURN INDICATOR & GAME STATUS
-   ========================================================================== */
+/* Turn Indicator & Status */
 .turn-section {
   width: 100%;
   display: flex;
@@ -316,6 +309,8 @@ body {
   transition: all var(--transition-normal);
   opacity: 0.55;
   transform: scale(0.96);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .player-badge-x {
@@ -357,7 +352,6 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Status Banner */
 .status-banner {
   font-size: 0.875rem;
   font-weight: 600;
@@ -374,9 +368,7 @@ body {
   color: var(--text-primary);
 }
 
-/* ==========================================================================
-   GAME BOARD (3X3 GRID)
-   ========================================================================== */
+/* 3x3 Game Board */
 .board-container {
   position: relative;
   width: 100%;
@@ -410,9 +402,13 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-fast);
   outline: none;
   overflow: hidden;
+  min-height: 60px;
 }
 
 .cell:hover:not(.occupied):not(:disabled) {
@@ -420,6 +416,11 @@ body {
   border-color: rgba(0, 240, 255, 0.35);
   box-shadow: 0 0 16px rgba(0, 240, 255, 0.2), inset 0 0 12px rgba(0, 240, 255, 0.06);
   transform: translateY(-2px);
+}
+
+.cell:active:not(.occupied):not(:disabled) {
+  background: rgba(36, 52, 90, 0.95);
+  transform: scale(0.97);
 }
 
 .cell:focus-visible {
@@ -440,15 +441,16 @@ body {
   justify-content: center;
   animation: markAppear 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   will-change: transform, opacity;
+  pointer-events: none;
 }
 
 .mark svg {
   width: 100%;
   height: 100%;
   overflow: visible;
+  pointer-events: none;
 }
 
-/* Player X Styling */
 .mark-x svg path {
   stroke: var(--cyan-neon);
   stroke-width: 14;
@@ -456,7 +458,6 @@ body {
   filter: drop-shadow(0 0 8px var(--cyan-glow-intense));
 }
 
-/* Player O Styling */
 .mark-o svg circle {
   stroke: var(--purple-neon);
   stroke-width: 14;
@@ -466,23 +467,14 @@ body {
 }
 
 @keyframes markAppear {
-  0% {
-    transform: scale(0.2) rotate(-15deg);
-    opacity: 0;
-  }
-  75% {
-    transform: scale(1.15) rotate(4deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
+  0% { transform: scale(0.2) rotate(-15deg); opacity: 0; }
+  75% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
-/* Winning Cell Highlight Animation */
+/* Winning Cell Highlight */
 .cell.winning-cell {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(16, 185, 129, 0.15);
   border-color: var(--emerald-neon);
   box-shadow: 0 0 25px var(--emerald-glow), inset 0 0 15px rgba(16, 185, 129, 0.25);
   animation: winningCellGlow 1.6s ease-in-out infinite alternate;
@@ -510,9 +502,7 @@ body {
   }
 }
 
-/* ==========================================================================
-   SCOREBOARD
-   ========================================================================== */
+/* Scoreboard */
 .scoreboard {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -534,6 +524,8 @@ body {
   text-align: center;
   gap: 0.25rem;
   transition: all var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .score-card:hover {
@@ -549,17 +541,9 @@ body {
   color: var(--text-secondary);
 }
 
-.score-x .score-label {
-  color: var(--cyan-neon);
-}
-
-.score-o .score-label {
-  color: var(--purple-neon);
-}
-
-.score-ties .score-label {
-  color: var(--text-secondary);
-}
+.score-x .score-label { color: var(--cyan-neon); }
+.score-o .score-label { color: var(--purple-neon); }
+.score-ties .score-label { color: var(--text-secondary); }
 
 .score-value {
   font-family: 'Space Grotesk', monospace, sans-serif;
@@ -570,9 +554,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* ==========================================================================
-   CONTROL BUTTONS
-   ========================================================================== */
+/* Control Buttons */
 .controls-section {
   display: flex;
   align-items: center;
@@ -587,20 +569,17 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: var(--radius-md);
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all var(--transition-fast);
   white-space: nowrap;
-}
-
-.btn svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2.2;
 }
 
 .btn-primary {
@@ -611,7 +590,7 @@ body {
   box-shadow: 0 4px 18px rgba(0, 240, 255, 0.15);
 }
 
-.btn-primary:hover {
+.btn-primary:hover, .btn-primary:active {
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.28) 0%, rgba(168, 85, 247, 0.35) 100%);
   border-color: var(--cyan-neon);
   box-shadow: 0 6px 24px rgba(0, 240, 255, 0.25);
@@ -625,7 +604,7 @@ body {
   color: var(--text-secondary);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover, .btn-secondary:active {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.15);
   color: var(--text-primary);
@@ -636,17 +615,15 @@ body {
   transform: translateY(0);
 }
 
-/* ==========================================================================
-   WINNER CELEBRATION MODAL OVERLAY
-   ========================================================================== */
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 9, 14, 0.75);
+  background: rgba(7, 9, 14, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 100;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 1rem;
@@ -656,6 +633,7 @@ body {
 }
 
 .modal-overlay.open {
+  display: flex;
   opacity: 1;
   pointer-events: auto;
 }
@@ -672,7 +650,7 @@ body {
   align-items: center;
   text-align: center;
   gap: 1.25rem;
-  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.9),
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.95),
               0 0 40px rgba(0, 240, 255, 0.15);
   transform: scale(0.92);
   transition: transform var(--transition-normal);
@@ -738,12 +716,10 @@ body {
   flex: 1;
 }
 
-/* ==========================================================================
-   FOOTER
-   ========================================================================== */
+/* Footer */
 .game-footer {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.8125rem;
@@ -751,9 +727,7 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN (Mobile, Tablet, Desktop)
-   ========================================================================== */
+/* Mobile & Tablet Responsiveness */
 @media (max-width: 440px) {
   body {
     padding: 1rem 0.75rem;
@@ -791,6 +765,7 @@ body {
 
   .btn {
     width: 100%;
+    padding: 0.85rem 1.25rem;
   }
 }
 
@@ -804,7 +779,6 @@ body {
   }
 }
 
-/* Accessibility: Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

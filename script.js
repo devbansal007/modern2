@@ -3,10 +3,11 @@
  * TIC TAC TOE - MODERN FUTURISTIC JAVASCRIPT GAME LOGIC
  * ============================================================================
  * Features:
+ *  - High-response mobile touch and desktop click handling
  *  - 2-Player Local Pass & Play and Single-Player vs Computer (Smart & Casual)
  *  - Full 8-combination win detection & winning line cell highlights
  *  - Persistent score tracking across rounds with dedicated score reset
- *  - Synthesized Web Audio API sound effects (with Mute toggle)
+ *  - Synthesized Web Audio API sound effects with resilient mobile touch resume
  *  - Full keyboard accessibility and responsive interaction
  * ============================================================================
  */
@@ -46,8 +47,8 @@
 
   // SVG Markup Templates for High-Fidelity Icons
   const SVG_X = `
-    <div class="mark mark-x" aria-hidden="true">
-      <svg viewBox="0 0 100 100">
+    <div class="mark mark-x" aria-hidden="true" style="pointer-events: none;">
+      <svg viewBox="0 0 100 100" style="pointer-events: none;">
         <path d="M 22 22 L 78 78" />
         <path d="M 78 22 L 22 78" />
       </svg>
@@ -55,8 +56,8 @@
   `;
 
   const SVG_O = `
-    <div class="mark mark-o" aria-hidden="true">
-      <svg viewBox="0 0 100 100">
+    <div class="mark mark-o" aria-hidden="true" style="pointer-events: none;">
+      <svg viewBox="0 0 100 100" style="pointer-events: none;">
         <circle cx="50" cy="50" r="32" />
       </svg>
     </div>
@@ -96,14 +97,18 @@
   let audioCtx = null;
 
   function initAudio() {
-    if (!audioCtx) {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
+    try {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
       }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    } catch {
+      // Audio fallback
     }
   }
 
@@ -123,7 +128,7 @@
       osc.start();
       osc.stop(audioCtx.currentTime + duration);
     } catch {
-      // Audio playback fails silently if unsupported or blocked
+      // Audio playback fails silently if blocked or unsupported
     }
   }
 
@@ -140,16 +145,13 @@
     try {
       initAudio();
       if (!audioCtx) return;
-      // 3-note ascending victory arpeggio (C5 -> E5 -> G5 -> C6)
       const notes = [523.25, 659.25, 783.99, 1046.5];
       notes.forEach((freq, index) => {
         setTimeout(() => {
           playTone(freq, 0.18, 'triangle', 0.2);
         }, index * 110);
       });
-    } catch {
-      // Ignored
-    }
+    } catch {}
   }
 
   function playSoundDraw() {
@@ -159,9 +161,7 @@
       if (!audioCtx) return;
       playTone(330, 0.15, 'sawtooth', 0.1);
       setTimeout(() => playTone(293.66, 0.25, 'sawtooth', 0.1), 120);
-    } catch {
-      // Ignored
-    }
+    } catch {}
   }
 
   function playSoundClick() {
@@ -173,14 +173,17 @@
   // --------------------------------------------------------------------------
 
   /**
-   * Handles user click on a board cell
+   * Primary touch/click move handler on a board cell
    */
-  function handleCellClick(e) {
-    const cell = e.currentTarget;
+  function handleCellInteraction(e) {
+    // Find closest cell container
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
+
     const index = parseInt(cell.getAttribute('data-index'), 10);
 
-    // Guard conditions: cell occupied, game inactive, or CPU currently computing
-    if (state.board[index] !== null || !state.isGameActive || state.isCpuTurn) {
+    // Guard conditions: cell already occupied, game over, or CPU calculating
+    if (isNaN(index) || state.board[index] !== null || !state.isGameActive || state.isCpuTurn) {
       return;
     }
 
@@ -223,9 +226,6 @@
     updateTurnIndicator();
   }
 
-  /**
-   * Evaluates if the current board has a winning combination for player
-   */
   function checkWin(board, player) {
     for (let i = 0; i < WINNING_COMBINATIONS.length; i++) {
       const [a, b, c] = WINNING_COMBINATIONS[i];
@@ -236,16 +236,10 @@
     return null;
   }
 
-  /**
-   * Evaluates if board is full without a winner
-   */
   function checkDraw(board) {
     return board.every(cell => cell !== null);
   }
 
-  /**
-   * Concludes round with winner or draw
-   */
   function handleGameEnd(result, winner = null, winningLine = []) {
     state.isGameActive = false;
 
@@ -253,7 +247,6 @@
       state.scores[winner] += 1;
       updateScoreboard();
 
-      // Highlight winning 3 cells
       winningLine.forEach(index => {
         cells[index].classList.add('winning-cell');
       });
@@ -273,9 +266,6 @@
     }
   }
 
-  /**
-   * Updates visual turn badges and status text
-   */
   function updateTurnIndicator() {
     if (!state.isGameActive) return;
 
@@ -294,9 +284,6 @@
     }
   }
 
-  /**
-   * Updates scoreboard numbers in the DOM
-   */
   function updateScoreboard() {
     scoreXEl.textContent = state.scores.X;
     scoreOEl.textContent = state.scores.O;
@@ -311,7 +298,6 @@
     state.isCpuTurn = true;
     updateTurnIndicator();
 
-    // Natural 380ms delay for human-like pacing
     setTimeout(() => {
       if (!state.isGameActive) {
         state.isCpuTurn = false;
@@ -322,7 +308,6 @@
       if (state.cpuDifficulty === 'smart') {
         moveIndex = getBestMove(state.board, 'O');
       } else {
-        // Casual mode: 65% smart, 35% random choice
         if (Math.random() < 0.65) {
           moveIndex = getBestMove(state.board, 'O');
         } else {
@@ -337,9 +322,6 @@
     }, 380);
   }
 
-  /**
-   * Selects random available cell
-   */
   function getRandomMove(board) {
     const emptyIndices = [];
     board.forEach((val, i) => {
@@ -350,13 +332,10 @@
     return emptyIndices[randomIndex];
   }
 
-  /**
-   * Minimax algorithm: computes mathematically optimal move for the CPU
-   */
   function getBestMove(board, aiPlayer) {
     const humanPlayer = aiPlayer === 'O' ? 'X' : 'O';
 
-    // 1. Immediate Win Check (Greedy shortcut)
+    // 1. Immediate Win Check
     for (let i = 0; i < 9; i++) {
       if (board[i] === null) {
         board[i] = aiPlayer;
@@ -368,7 +347,7 @@
       }
     }
 
-    // 2. Immediate Block Check (Prevent opponent win on next turn)
+    // 2. Immediate Block Check
     for (let i = 0; i < 9; i++) {
       if (board[i] === null) {
         board[i] = humanPlayer;
@@ -380,12 +359,12 @@
       }
     }
 
-    // 3. Take Center if available early
+    // 3. Take Center if available
     if (board[4] === null && Math.random() < 0.85) {
       return 4;
     }
 
-    // 4. Minimax with depth penalty
+    // 4. Minimax Algorithm
     let bestScore = -Infinity;
     let bestMove = null;
 
@@ -406,15 +385,9 @@
   }
 
   function minimax(board, depth, isMaximizing, aiPlayer, humanPlayer) {
-    if (checkWin(board, aiPlayer)) {
-      return 10 - depth;
-    }
-    if (checkWin(board, humanPlayer)) {
-      return depth - 10;
-    }
-    if (checkDraw(board)) {
-      return 0;
-    }
+    if (checkWin(board, aiPlayer)) return 10 - depth;
+    if (checkWin(board, humanPlayer)) return depth - 10;
+    if (checkDraw(board)) return 0;
 
     if (isMaximizing) {
       let maxScore = -Infinity;
@@ -442,7 +415,7 @@
   }
 
   // --------------------------------------------------------------------------
-  // MODAL CELEBRATION / VICTORY OVERLAY
+  // MODAL CELEBRATION / OVERLAY
   // --------------------------------------------------------------------------
   function showEndModal(type, winner, winnerName) {
     modalIcon.className = 'modal-icon';
@@ -487,9 +460,6 @@
   // RESET & RESTART HANDLERS
   // --------------------------------------------------------------------------
 
-  /**
-   * Restarts current round: clears board, keeps scores
-   */
   function restartRound() {
     playSoundClick();
     closeModal();
@@ -499,7 +469,6 @@
     state.isGameActive = true;
     state.isCpuTurn = false;
 
-    // Reset cell DOM states
     cells.forEach((cell, index) => {
       cell.innerHTML = '';
       cell.className = 'cell';
@@ -509,9 +478,6 @@
     updateTurnIndicator();
   }
 
-  /**
-   * Resets all accumulated scores to zero and starts a new round
-   */
   function resetScores() {
     playSoundClick();
     state.scores.X = 0;
@@ -525,15 +491,15 @@
   // EVENT LISTENERS & INITIALIZATION
   // --------------------------------------------------------------------------
 
-  // Cell Click Event Listeners
+  // Board Cell Interaction: Supports fast tap and click without delay
   cells.forEach(cell => {
-    cell.addEventListener('click', handleCellClick);
-    
-    // Accessibility: Keyboard support (Enter or Space to select cell)
+    cell.addEventListener('click', handleCellInteraction);
+
+    // Keyboard support
     cell.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        cell.click();
+        handleCellInteraction(e);
       }
     });
   });
@@ -544,12 +510,10 @@
   modalBtnPlayAgain.addEventListener('click', restartRound);
   modalBtnClose.addEventListener('click', closeModal);
 
-  // Close modal when clicking outside card
   modalOverlay.addEventListener('click', e => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // Game Mode Switcher
   modePvpBtn.addEventListener('click', () => {
     if (state.gameMode === 'pvp') return;
     playSoundClick();
@@ -572,7 +536,6 @@
     restartRound();
   });
 
-  // CPU Difficulty Buttons
   diffSmartBtn.addEventListener('click', () => {
     playSoundClick();
     state.cpuDifficulty = 'smart';
@@ -587,7 +550,6 @@
     diffSmartBtn.classList.remove('active');
   });
 
-  // Sound Effects Toggle
   soundToggleBtn.addEventListener('click', () => {
     state.soundEnabled = !state.soundEnabled;
     soundToggleBtn.setAttribute('aria-label', state.soundEnabled ? 'Mute sound effects' : 'Unmute sound effects');
