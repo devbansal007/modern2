@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Tic Tac Toe</title>
+    <meta name="description" content="A sleek, futuristic Tic Tac Toe game featuring neon accents, two-player and smart single-player modes, score tracking, and smooth animations." />
+    <meta property="og:title" content="Modern Tic Tac Toe" />
+    <meta property="og:description" content="A sleek, futuristic Tic Tac Toe game featuring neon accents, two-player and smart single-player modes, score tracking, and smooth animations." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts Preconnect & Stylesheet -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Game Stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- Ambient Animated Background -->
+    <div class="ambient-background" aria-hidden="true">
+      <div class="cyber-grid"></div>
+      <div class="glow-orb glow-orb-1"></div>
+      <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <!-- Main Game Container -->
+    <main class="app-container">
+      <!-- Game Header -->
+      <header class="game-header">
+        <div class="header-top">
+          <h1 class="game-title">TIC TAC TOE</h1>
+          <button id="soundToggle" class="audio-toggle-btn" type="button" aria-label="Toggle sound effects" title="Sound Effects">
+            <span id="soundIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+        <p class="game-subtitle">Think Smart. Play Strategic.</p>
+      </header>
+
+      <!-- Game Mode Selector (Segmented Tab Control) -->
+      <nav class="mode-selector" aria-label="Game Mode Selection">
+        <button id="modePvp" class="mode-btn active" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Pass &amp; Play (2P)
+        </button>
+        <button id="modeCpu" class="mode-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          vs Computer
+        </button>
+      </nav>
+
+      <!-- Computer Difficulty Sub-Options (Displayed when in CPU mode) -->
+      <div id="cpuOptions" class="cpu-options" style="display: none;">
+        <span>AI Level:</span>
+        <button id="diffSmart" class="diff-btn active" type="button">Smart (Minimax)</button>
+        <button id="diffCasual" class="diff-btn" type="button">Casual</button>
+      </div>
+
+      <!-- Turn Indicator & Status -->
+      <section class="turn-section" aria-label="Current Player Turn">
+        <div class="turn-badges">
+          <div id="badgeX" class="player-badge player-badge-x active" aria-label="Player X">
+            <span class="badge-symbol">✕</span>
+            <span class="badge-label">Player X</span>
+          </div>
+          <div id="badgeO" class="player-badge player-badge-o" aria-label="Player O">
+            <span class="badge-symbol">○</span>
+            <span id="labelO" class="badge-label">Player O</span>
+          </div>
+        </div>
+        <div id="statusMessage" class="status-banner" role="status" aria-live="polite">
+          Player X's Turn
+        </div>
+      </section>
+
+      <!-- 3x3 Game Board -->
+      <section class="board-container" aria-label="Tic Tac Toe 3x3 Grid">
+        <div id="gameBoard" class="game-board" role="grid" aria-label="Tic Tac Toe Board">
+          <button class="cell" type="button" data-index="0" role="gridcell" tabindex="0" aria-label="Cell 1, empty"></button>
+          <button class="cell" type="button" data-index="1" role="gridcell" tabindex="0" aria-label="Cell 2, empty"></button>
+          <button class="cell" type="button" data-index="2" role="gridcell" tabindex="0" aria-label="Cell 3, empty"></button>
+          <button class="cell" type="button" data-index="3" role="gridcell" tabindex="0" aria-label="Cell 4, empty"></button>
+          <button class="cell" type="button" data-index="4" role="gridcell" tabindex="0" aria-label="Cell 5, empty"></button>
+          <button class="cell" type="button" data-index="5" role="gridcell" tabindex="0" aria-label="Cell 6, empty"></button>
+          <button class="cell" type="button" data-index="6" role="gridcell" tabindex="0" aria-label="Cell 7, empty"></button>
+          <button class="cell" type="button" data-index="7" role="gridcell" tabindex="0" aria-label="Cell 8, empty"></button>
+          <button class="cell" type="button" data-index="8" role="gridcell" tabindex="0" aria-label="Cell 9, empty"></button>
+        </div>
+      </section>
+
+      <!-- Scoreboard -->
+      <section class="scoreboard" aria-label="Game Scores">
+        <div class="score-card score-x">
+          <span class="score-label">Player X</span>
+          <span id="scoreX" class="score-value">0</span>
+        </div>
+        <div class="score-card score-ties">
+          <span class="score-label">Draws</span>
+          <span id="scoreTies" class="score-value">0</span>
+        </div>
+        <div class="score-card score-o">
+          <span class="score-label">Player O</span>
+          <span id="scoreO" class="score-value">0</span>
+        </div>
+      </section>
+
+      <!-- Controls Section -->
+      <section class="controls-section" aria-label="Game Controls">
+        <button id="btnRestart" class="btn btn-primary" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          Restart Round
+        </button>
+        <button id="btnResetScores" class="btn btn-secondary" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3h18v18H3z" stroke="none"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Reset Scores
+        </button>
+      </section>
+    </main>
+
+    <!-- Modal Announcement Overlay -->
+    <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <div id="modalIcon" class="modal-icon"></div>
+        <h2 id="modalTitle" class="modal-title">Victory!</h2>
+        <p id="modalDesc" class="modal-desc">Round finished.</p>
+        <div class="modal-actions">
+          <button id="modalBtnPlayAgain" class="btn btn-primary" type="button">Play Again</button>
+          <button id="modalBtnClose" class="btn btn-secondary" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="game-footer">
+      <p>Designed for strategic minds.</p>
+    </footer>
+
+    <!-- Game Script -->
+    <script src="/script.js"></script>
+  </body>
+</html>

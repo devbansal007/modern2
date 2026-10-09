@@ -1,0 +1,6 @@
+{
+  "name": "Modern Tic Tac Toe",
+  "description": "A sleek, futuristic Tic Tac Toe game featuring neon accents, two-player and smart single-player modes, score tracking, and smooth animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
