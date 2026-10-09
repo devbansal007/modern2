@@ -63,3 +63,46 @@ A sleek, modern Tic Tac Toe web game crafted with a futuristic developer-themed 
 ├── style.css      # CSS variables, cyber grid, glassmorphism, animations, media queries
 ├── script.js      # Game state machine, Minimax AI, Web Audio API synthesis, event bus
 └── README.md      # Project documentation and setup guide
+```
+
+---
+
+## 🚀 Getting Started
+
+No package manager or build step is required to run the game.
+
+### Method 1: Direct Browser Launch
+1. Clone or download the repository to your computer.
+2. Double-click `index.html` to open it in any modern browser (Chrome, Safari, Edge, Firefox).
+
+### Method 2: Visual Studio Code with Live Server
+1. Open the project folder in **Visual Studio Code**.
+2. Install the **Live Server** extension (by *Ritwick Dey*) from the Extensions marketplace (`Ctrl+Shift+X` or `Cmd+Shift+X`).
+3. Right-click `index.html` in the file explorer and select **"Open with Live Server"**.
+4. The game will automatically launch at `http://127.0.0.1:5500`.
+
+### Method 3: Using Vite (Optional Dev Server)
+If you have Node.js installed in this repository:
+```bash
+# Install dependencies
+npm install
+
+# Start local dev server
+npm run dev
+```
+
+---
+
+## 🧠 How the Smart AI Works
+
+The single-player **Smart AI** uses the classical **Minimax Algorithm**:
+1. Evaluates all possible future board states recursively.
+2. Assigns a score heuristic: `+10 - depth` for AI wins, `depth - 10` for human wins, and `0` for draws.
+3. Maximizes the AI's payoff while minimizing the player's potential advantage.
+4. Shortcuts immediate offensive wins and immediate defensive blocks for lightning-fast responsiveness ($\le 380\text{ms}$).
+
+---
+
+## 📄 License
+
+Open-source under the [Apache 2.0 License](LICENSE). Designed for strategic minds.
