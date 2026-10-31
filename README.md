@@ -106,3 +106,9 @@ The single-player **Smart AI** uses the classical **Minimax Algorithm**:
 ## 📄 License
 
 Open-source under the [Apache 2.0 License](LICENSE). Designed for strategic minds.
+
+## Requirements
+
+- Node.js `>=20`
+- npm (no lockfile committed yet)
+- A local `.env` created from `.env.example`
